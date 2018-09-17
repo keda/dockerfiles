@@ -27,7 +27,7 @@ COPY ./DCEVM-light-8u181-installer.jar /tmp/
 RUN set -ex && \
     [[ ${JAVA_VERSION_MAJOR} != 7 ]] || ( echo >&2 'Oracle no longer publishes JAVA7 packages' && exit 1 ) && \
     apk -U upgrade && \
-    apk add libstdc++ wget curl ca-certificates bash && \
+    apk add libstdc++ wget curl ca-certificates bash tzdata && \
     # wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
     # for pkg in glibc-${GLIBC_VERSION} glibc-bin-${GLIBC_VERSION} glibc-i18n-${GLIBC_VERSION}; do wget -q -O /tmp/${pkg}.apk ${GLIBC_REPO}/releases/download/${GLIBC_VERSION}/${pkg}.apk ; done && \
     apk add --allow-untrusted /tmp/*.apk && \
@@ -61,6 +61,8 @@ RUN set -ex && \
     fi && \
     sed -i s/#networkaddress.cache.ttl=-1/networkaddress.cache.ttl=10/ $JAVA_HOME/jre/lib/security/java.security && \
     apk del curl glibc-i18n && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo "Asia/Shanghai" > /etc/timezone && \
     rm -rf /opt/jdk/*src.zip \
            /opt/jdk/lib/missioncontrol \
            /opt/jdk/lib/visualvm \
@@ -98,6 +100,6 @@ RUN set -ex && \
 RUN mkdir -p /home/app
 
 # add waiting script
-COPY wait-for-it.sh /home/app/
+COPY wait-for-it.sh /home/script/
 
 WORKDIR /home/app/
